@@ -12,7 +12,7 @@ export default function Layout({
   * na função passada no `return`.
   */
   useEffect(() => {
-    console.debug({ selectedTheme });
+    // console.debug({ selectedTheme });
     return () => {
       console.debug('<Layout/> saiu da tela.');
     }

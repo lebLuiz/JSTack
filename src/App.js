@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react';
 import { ThemeProvider } from 'styled-components';
 
 import GlobalStyle from './styles/global';
@@ -12,6 +12,8 @@ function App() {
     themes[theme] || themes.dark,
   [theme]);
 
+  const firstRender = useRef(true);
+
   function handleToggleTheme() {
     setTheme(prevState => prevState === 'dark'
       ? 'light'
@@ -19,7 +21,28 @@ function App() {
     );
   }
 
-  // 1º parametro: Função de efeito
+  /* "E SE EU QUERO Q NÃO SEJA CHAMADO O useEffect EM CIMA DE UMA PROPRIEDADE PELA 1ª
+  * VEZ QUANDO MONTA A PÁGINA/COMPONENTE??"
+  * O react não tem nem um tratamento para isso, precisamos fazer na "mão" algum tratamento pra isso.
+  * Nesse exemplo, criamos o "firsRender" no qual é um "useRef" que atribui o valor "current" e
+  * conseguimos identificar o valor do mesmo para conseguir manipular sua validez do valor atual,
+  * com isso, fazer qualquer tipo de tratamento. Nesse caso do useEffect abaixo, a primeira vez que
+  * renderizar o componente, não vai cair no console, mas se alterar o estado do atributo 'theme',
+  * dai irá se alterar!
+  * obs: "porque o 'useRef'?" - pois no react a cada alteração do state (o theme para esse exemplo),
+  * renderiza o componente novamente, nesse caso, sempre seria true o "firstRender" mesmo alterando
+  * o valor de 'theme'. O useRef consegue armazenar em memoria o valor "prev", sem a necessidade
+  * de renderizar novamente ele mesmo.
+  */
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    console.debug({ theme });
+  }, [theme]);
+
+  // USEEFFECT - 1º parametro: Função de efeito
   /*
   * Entendesse o useEffect como se fosse uma função chamada a cada vez que o componente/pagina
   * é atualizado/renderizado.
@@ -29,10 +52,10 @@ function App() {
   * Passe a definição do estado dentro do array, isso signfica que o useEffect será chamado quando aquela propriedade de estado ser alterada.
   */
 
-  useEffect(() => {
-    console.debug('UseEffect executou ao alterar `theme`!');
-    localStorage.setItem('theme', JSON.stringify(theme));
-  }, [theme]);
+  // useEffect(() => {
+  //   console.debug('UseEffect executou ao alterar `theme`!');
+  //   localStorage.setItem('theme', JSON.stringify(theme));
+  // }, [theme]);
   // useLayoutEffect(() => {
   //   for(let i = 0; i < 20000; i++)
   //     console.log('useLayoutEffect');
