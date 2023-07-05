@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
 import { ThemeProvider } from 'styled-components';
 
 import GlobalStyle from './styles/global';
@@ -33,22 +33,23 @@ function App() {
     console.debug('UseEffect executou ao alterar `theme`!');
     localStorage.setItem('theme', JSON.stringify(theme));
   }, [theme]);
+  // useLayoutEffect(() => {
+  //   for(let i = 0; i < 20000; i++)
+  //     console.log('useLayoutEffect');
+  // },[theme]);
 
+  /* A diferença do useEffect para o useLayoutEffect é que useEffect é executado de forma
+  * ASSINCRONA(dps q o usuário tá vendo as alterações na tela), e o useLayoutEffect é 
+  * executado de forma SINCRONA(antes do usuário ver as alterações na tela).
+  */
   return (
     <ThemeProvider theme={currentTheme}>
       <GlobalStyle />
+      <Layout
+        selectedTheme={theme}
+        onToggleTheme={handleToggleTheme}
+      />
       
-      <button onClick={handleToggleTheme}>Toggle</button>
-      {theme === 'dark' && (
-        /* 1º Aqui é um caso para mostrar o 'unmounted' do lifecycle do React.
-        * Com essa condição, caso seja false, o React de fato não renderiza no DOM,
-        * ou seja, há uma "desmontagem" do componente Layout (vá até o componente Layout)
-        */
-        <Layout
-          selectedTheme={theme}
-          onToggleTheme={handleToggleTheme}
-        />
-      )}
     </ThemeProvider>
   );
 };
