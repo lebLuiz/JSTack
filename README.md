@@ -1,0 +1,3 @@
+### Atenção!
+Dentro dessa pasta, invés de eu ter criado diferentes branchs para cada caso estudado sobre os fundamentos do React, eu "mosquei" e fui commitando tudo na `master` de acordo com cada aula.
+Sendo assim, vá olhando os commits do mesmo para ir se baseando em cada conceito estudado, pois há commits que vai ter determinados trechos de código, e outro commit acabei removendo ou alterando de lugar para se comportar conforme a explicação do instrutor Mateus Silva.
