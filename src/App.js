@@ -17,35 +17,48 @@ import themes from './styles/themes';
 * Todo componente de ClassComponente PRECISA extender React.Componente
 */
 class App extends React.Component {
-  constructor(props) {
-    // NOTE: Ao definir construtor de um componente, sempre precisa-se definir o super da classe que o mesmo está extendendo, isso é lei.
-    super(props);
+  // Para eu definir o state abaixo "avulso" assim, tive que instalar: `@babel/plugin-proposal-class-propertie -D`
+  state = {
+    theme: 'dark',
+    oiTudoBem: true,
+  };
 
-    this.state = {
-      theme: 'dark',
-    };
-
-    this.handleToggleTheme = this.handleToggleTheme.bind(this);
-  }
-
-  /* NOTE: Se quero criar uma funcao para ser utilizada em algum hook
+  /* CASO 1 - NOTE: Se quero criar uma funcao para ser utilizada em algum hook
   * e nessa funcao utilizar alguma propriedade do escopo (como um state),
   * eu preciso atribuir um o `bind` do `this` dentro da atribuição da função (observe o `handleToggleTheme` no construtor).
   * Isso é necessário pois se eu crio somente a função abaixo,
   * ao tentar acessar o `this`, o JS entendesse que eu criei essa funcao fora do escopo da classe App,
   * no qual seria o `this` do escopo desse arquivo em si.
   */
-  handleToggleTheme() {
-    console.log(this);
+  // handleToggleTheme() {
+  //   console.log(this);
+  //   this.setState(prevState => ({
+  //     theme: prevState.theme === 'dark'
+  //       ? 'light'
+  //       : 'dark'
+  //   }));
+  // }
+
+  /* CASO 2 - NOTE: Posso criar funcoes como `arrow-function`, pois nao preciso definir o `bind` do this dentro dele em `constructor` como feito no CASO 1.
+  * A funcao `arrow-function` já associa o `this` do "pai" dele, ou seja, no escopo que esta sendo criado.
+  */
+  handleToggleTheme = () => {
     this.setState(prevState => ({
       theme: prevState.theme === 'dark'
         ? 'light'
         : 'dark'
     }));
+
+    /* NOTE: Caso queira forçar uma atualização/renderização do componente mesmo não alterando algum state/propriedade.
+    * Obs: caso queira ver efeito, descomente abaixo e comente o setState acima.
+    */
+    // this.forceUpdate();
   }
 
   render() {
     const { theme } = this.state;
+
+    console.log('<App /> renderizou!');
 
     return (
       <ThemeProvider theme={themes[theme] || themes.dark}>
