@@ -18,13 +18,28 @@ import themes from './styles/themes';
 * Todo componente de ClassComponente PRECISA extender React.Componente
 */
 class App extends React.Component {
-  render() {
-    // const { theme } = this.state;
+  state = {
+    changed: false,
+  };
 
-    console.log('<App /> renderizou!');
+  /* NOTE: `componentDidMount` seria um `mount` lá no Vue (pegando referência como exemplo).
+  * É executado apenas quando é montado o componente, se o o component for renderizado/atualizado,
+  * ele não é chamado. Tal como, para esse caso aqui em `ClassComponent`, pegando referência do useEffect
+  * utilizado em FunctionComponent, no useEffect seria "todo" o LifeCycle(lido com a montado uma vez, atualização, propriedades para indicadas ao atualizar, desmontagem, etc),
+  * onde, se eu quisesse chamar apenas quando o componente é montado, eu passaria useEffect(() => {}, []).
+  */
+  componentDidMount() {
+    console.log('ComponentDidMount executed');
+  }
+  
+  render() {
+    console.log('Rendered');
 
     return (
       <ThemeProvider>
+        <button onClick={() => this.setState({ changed: true, })}>
+          Change State
+        </button>
         <ThemeContext.Consumer>
 
           {({ theme }) => (
