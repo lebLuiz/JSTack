@@ -55,6 +55,26 @@ class App extends React.Component {
   componentDidCatch(error, info) {
     console.log({ error, info })
   }
+
+  /* NOTE: `shouldComponentUpdate` é praticamente mesma coisa q o  `componentDidUpdate`.
+  * Porém, ele é o único 'hook' que precisa retornar alguma coisa (um booleano no caso),
+  * ele é como se fosse o `beforeRouteEnter` no Vue, mas não exatamente,
+  * pois aqui o componente já vai estar renderizado.
+  * Se eu alterar uma propriedade de state ou prop, vai chamar o `shouldComponentUpdate` primeiro e depois o `componentDidUpdate`.
+  * O `shouldComponentUpdate` é como se fose um 'middleware' 
+  * Imagine que o `shouldComponentUpdate` é como se fosse uma pergunta como:
+  * "O componente deve atualizar?" - true: sim, false: nao.
+  * se o retorno for false, então nem vai chegar no `componentDidUpdate`
+  */
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log('shouldComponentUpdate Executed : 😌', {
+      currentState: this.state,
+      nextState,
+      nextProps,
+    });
+
+    return true;
+  }
   
   render() {
     console.log('Rendered');

@@ -18,10 +18,6 @@ export default function Layout() {
 
   return (
     <>
-      {
-        // NOTE: Forçando error para cair em App.js `componentDidCatch`
-        undefined.map(item => item)
-      }
       <Header />
       <PostsList />
       <Footer />
