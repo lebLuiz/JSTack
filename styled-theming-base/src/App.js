@@ -31,6 +31,22 @@ class App extends React.Component {
   componentDidMount() {
     console.log('ComponentDidMount executed');
   }
+
+  /* NOTE: `componentDidUpdate` serve como se fosse o `watch` no Vue, porém
+  * o único aspecto q pode se diferenciar é q não tem como definir o parametro do valor
+  * "atual", pois como pode ver nos parametros, é o valor antigo de propriedades como um todo,
+  * e valor antigo dos estados como um todo.
+  * `componentDidUpdate` é chamado depois do método `render`, ou seja, depois
+  * de ter montado na tela o componente.
+  */
+  componentDidUpdate(prevProps, prevState) {
+    console.log('componentDidUpdate executed');
+    console.log({
+      currentState: this.state,
+      prevProps,
+      prevState,
+    });
+  }
   
   render() {
     console.log('Rendered');
