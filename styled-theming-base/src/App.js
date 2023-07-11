@@ -47,6 +47,14 @@ class App extends React.Component {
       prevState,
     });
   }
+
+  /* NOTE: `componentDidCatch` serve para capturar o error que acontece nos componentes filhos.
+  * Ou seja, como estou no componente App, se estourar um error no componente Layout por exemplo,
+  * eu conseguiria capturar diante desse método.
+  */
+  componentDidCatch(error, info) {
+    console.log({ error, info })
+  }
   
   render() {
     console.log('Rendered');
