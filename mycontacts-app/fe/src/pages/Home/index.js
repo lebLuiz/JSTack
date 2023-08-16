@@ -1,7 +1,10 @@
+/* eslint-disable react/jsx-one-expression-per-line */
+/* eslint-disable no-nested-ternary */
 import {
   useEffect,
   useState,
   useMemo,
+  useCallback,
 } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -12,12 +15,16 @@ import {
   ListHeader,
   Card,
   ErrorContainer,
+  EmptyListContainer,
+  SearchNotFoundContainer,
 } from './styles';
 
 import arrow from '../../assets/images/icons/arrow.svg';
 import edit from '../../assets/images/icons/edit.svg';
 import trash from '../../assets/images/icons/trash.svg';
 import sad from '../../assets/images/icons/sad.svg';
+import emptyBox from '../../assets/images/icons/empty-box.svg';
+import magnifierQuestion from '../../assets/images/icons/magnifier-question.svg';
 
 import Loader from '../../components/Loader';
 import Button from '../../components/Button';
@@ -35,23 +42,24 @@ export default function Home() {
     contact.name.toLowerCase().includes(searchTerm.toLowerCase())
   )), [contacts, searchTerm]);
 
-  async function loadContacts() {
+  const loadContacts = useCallback(async () => {
     try {
       setIsLoading(true);
 
       const contactsList = await ContactsService.listContacts(orderBy);
 
+      setHasError(false);
       setContacts(contactsList);
     } catch {
       setHasError(true);
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [orderBy]);
 
   useEffect(() => {
     loadContacts();
-  }, [orderBy]);
+  }, [loadContacts]);
 
   function handleToggleOrderBy() {
     setOrderBy((prevState) => (prevState === 'asc' ? 'desc' : 'asc'));
@@ -69,18 +77,30 @@ export default function Home() {
     <Container>
       <Loader isLoading={isLoading} />
 
-      <InputSearchContainer>
-        <input
-          value={searchTerm}
-          type="text"
-          placeholder="Pesquisar contato"
-          onChange={handleChangeSearchTerm}
-        />
-      </InputSearchContainer>
+      { (contacts.length > 0 && !hasError) && (
+        <InputSearchContainer>
+          <input
+            value={searchTerm}
+            type="text"
+            placeholder="Pesquisar contato"
+            onChange={handleChangeSearchTerm}
+          />
+        </InputSearchContainer>
+      ) }
 
-      <Header hasError={hasError}>
+      <Header
+        justifyContent={
+            hasError
+              ? 'flex-end'
+              : (
+                contacts.length > 0
+                  ? 'space-between'
+                  : 'center'
+              )
+        }
+      >
         {
-            !hasError && (
+            (!hasError && contacts.length > 0) && (
             <strong>
               {`${filteredContacts.length} ${filteredContacts.length === 1 ? 'contato' : 'contatos'}`}
             </strong>
@@ -97,7 +117,7 @@ export default function Home() {
           <img src={sad} alt="Sad" />
           <div className="details">
             <strong>Ocorreu um erro ao obter os seus contatos!</strong>
-            <Button type="button" onClick={() => handleTryAgain}>
+            <Button type="button" onClick={handleTryAgain}>
               Tentar novamente
             </Button>
           </div>
@@ -106,6 +126,35 @@ export default function Home() {
       }
 
       {
+        !hasError && (
+        <>
+            {
+                (contacts.length < 1 && !isLoading) && (
+                <EmptyListContainer>
+                  <img src={emptyBox} alt="Empty box" />
+
+                  <p>
+                    Você ainda não tem nenhum contato cadastrado!
+                    Clique no botão
+                    <strong>”Novo contato”</strong> à cima para cadastrar o seu primeiro!
+                  </p>
+                </EmptyListContainer>
+                )
+            }
+
+            {
+                (contacts.length > 0 && filteredContacts.length < 1) && (
+                <SearchNotFoundContainer>
+                  <img src={magnifierQuestion} alt="Magnifier Question" />
+
+                  <span>
+                    Nenhum resultado foi encontrado para <strong>{searchTerm}</strong>
+                  </span>
+                </SearchNotFoundContainer>
+                )
+            }
+
+          {
             filteredContacts.length > 1 && (
             <ListHeader orderBy={orderBy}>
               <button
@@ -119,7 +168,7 @@ export default function Home() {
             )
         }
 
-      {
+          {
             filteredContacts.map((contact) => (
               <Card key={contact.id}>
                 <div className="info">
@@ -143,6 +192,9 @@ export default function Home() {
               </Card>
             ))
         }
+        </>
+        )
+      }
 
     </Container>
   );
