@@ -11,7 +11,7 @@ export default function Routes() {
     <Switch>
       <Route path="/" exact component={Home} />
       <Route path="/new" component={NewContact} />
-      <Route path="/edit" component={EditContact} />
+      <Route path="/edit/:id" component={EditContact} />
     </Switch>
   );
 }

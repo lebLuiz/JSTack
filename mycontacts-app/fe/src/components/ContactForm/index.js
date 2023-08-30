@@ -3,6 +3,8 @@ import {
   useState,
   useEffect,
   useMemo,
+  forwardRef,
+  useImperativeHandle,
 } from 'react';
 import {
   Form,
@@ -18,14 +20,16 @@ import FormGroup from '../FormGroup';
 import Input from '../Input';
 import Select from '../Select';
 import Button from '../Button';
+import useSafeAsyncState from '../../hooks/useSafeAsyncState';
 
-export default function ContactForm({ buttonLabel, onSubmit }) {
+const ContactForm = forwardRef(({ buttonLabel, onSubmit }, ref) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [categories, setCategories] = useState([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [categories, setCategories] = useSafeAsyncState([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useSafeAsyncState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const filteredCategories = useMemo(() => categories, [categories]);
 
@@ -38,6 +42,21 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
 
   const isFormValid = (name && errors.length === 0);
 
+  useImperativeHandle(ref, () => ({
+    setFieldsValues: (contact) => {
+      setName(contact.name ?? '');
+      setEmail(contact.email ?? '');
+      setPhone(formatPhone(contact.phone ?? ''));
+      setCategoryId(contact.category_id ?? '');
+    },
+    resetFields: () => {
+      setName('');
+      setEmail('');
+      setPhone('');
+      setCategoryId('');
+    },
+  }), []);
+
   useEffect(() => {
     async function loadCategories() {
       try {
@@ -49,7 +68,7 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
     }
 
     loadCategories();
-  }, []);
+  }, [setCategories, setIsLoadingCategories]);
 
   function handleNameChange(event) {
     setName(() => event.target.value);
@@ -84,15 +103,19 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
     } else { removeError('phone'); }
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    onSubmit({
+    setIsSubmitting(true);
+
+    await onSubmit({
       name,
       email,
       phone,
       categoryId,
     });
+
+    setIsSubmitting(false);
   }
 
   return (
@@ -104,6 +127,7 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
           value={name}
           onChange={(event) => handleNameChange(event)}
           error={getErrorMessageByFieldName('name')}
+          disabled={isSubmitting}
         />
       </FormGroup>
 
@@ -114,6 +138,7 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
           value={email}
           onChange={(event) => handleEmailChange(event)}
           error={getErrorMessageByFieldName('email')}
+          disabled={isSubmitting}
         />
       </FormGroup>
 
@@ -125,6 +150,7 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
           value={phone}
           onChange={(event) => handlePhoneChange(event)}
           maxLength={15}
+          disabled={isSubmitting}
         />
       </FormGroup>
 
@@ -133,7 +159,7 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
           required
           value={categoryId}
           onChange={(event) => setCategoryId(() => event.target.value)}
-          disabled={isLoadingCategories}
+          disabled={isLoadingCategories || isSubmitting}
         >
           <option value="">
             Sem categoria
@@ -152,15 +178,21 @@ export default function ContactForm({ buttonLabel, onSubmit }) {
       </FormGroup>
 
       <ButtonContainer>
-        <Button type="submit" disabled={!isFormValid}>
+        <Button
+          type="submit"
+          disabled={!isFormValid}
+          isLoading={isSubmitting}
+        >
           {buttonLabel}
         </Button>
       </ButtonContainer>
     </Form>
   );
-}
+});
 
 ContactForm.propTypes = {
   buttonLabel: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
+
+export default ContactForm;
