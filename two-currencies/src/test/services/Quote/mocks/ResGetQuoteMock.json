@@ -1,0 +1,17 @@
+{
+  "meta": { "code": 200, "disclaimer": "" },
+  "response": {
+    "timestamp": 1736385611,
+    "date": "2025-01-08",
+    "from": "USD",
+    "to": "BRL",
+    "amount": 1,
+    "value": 6.10622354
+  },
+  "timestamp": 1736385611,
+  "date": "2025-01-08",
+  "from": "USD",
+  "to": "BRL",
+  "amount": 1,
+  "value": 6.10622354
+}
